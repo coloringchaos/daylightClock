@@ -4,6 +4,9 @@
       <script type="text/javascript">
 
       var socket = io.connect('http://104.131.39.226:8080/');
+
+      var sunriseUTC, sunsetUTC;
+      var sunrise, sunset;
                         
       socket.on('connect', function() {
               console.log("Connected");
@@ -11,20 +14,57 @@
 
       //function for requesting json - works with html 'get data' button
       var requestingJson = function() {
-              console.log("requestingJson button pressed");
+              // console.log("requestingJson button pressed");
               socket.emit('requestingJson');
       };
 
       //receive json data
       socket.on('json', function(data){
-         console.log("json: " + data);
+         // console.log("json: " + data);
+
+         var json = JSON.parse(data);
+
+         sunriseUTC = json.sys.sunrise;
+
+         sunsetUTC = json.sys.sunset;
+
+         // console.log("sunriseUTC = " + sunriseUTC + " / sunsetUTC = " + sunsetUTC);
+
+         sunrise = convertUTC(sunriseUTC);
+         sunset = convertUTC(sunsetUTC);
+
+         console.log("sunrise: " + sunrise);
+         console.log("sunset: " + sunset);
+
+
+
+
       });
+
+      
+      //function to convert UNIX timestamp to localtime
+      var convertUTC = function(UTC) {
+         // create a new javascript Date object based on the timestamp
+         var date = new Date(UTC*1000);   // multiplied by 1000 so that the argument is in milliseconds to work with javascript
+         
+         var hours = date.getHours();  // hours part from the timestamp
+         
+         var minutes = "0" + date.getMinutes(); // minutes part from the timestamp
+
+         // will display time in 10:30:23 format
+         var formattedTime = hours + ':' + minutes.substr(minutes.length-2);
+
+         return formattedTime;
+         // console.log(formattedTime);
+
+      }
+
 
 
 
         
       </script>     
-        
+
    </head>
 
 
