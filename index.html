@@ -1,0 +1,41 @@
+<html>
+   <head>
+      <script type="text/javascript" src="/socket.io/socket.io.js"></script>
+      <script type="text/javascript">
+
+      var socket = io.connect('http://104.131.39.226:8080/');
+                        
+      socket.on('connect', function() {
+              console.log("Connected");
+      });
+
+      //function for requesting json - works with html 'get data' button
+      var requestingJson = function() {
+              console.log("requestingJson button pressed");
+              socket.emit('requestingJson');
+      };
+
+      //receive json data
+      socket.on('json', function(data){
+         console.log("json: " + data);
+      });
+
+
+
+        
+      </script>     
+        
+   </head>
+
+
+
+
+   <body>
+       <body>
+          
+      <button type="button" onclick="requestingJson();">Get Data</button>
+
+   </body>
+
+
+</html>
