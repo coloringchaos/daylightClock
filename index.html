@@ -7,57 +7,107 @@
 
       var sunriseUTC, sunsetUTC;
       var sunrise, sunset;
+
+      var currentTime;
+      var now;
+      var daylength;
                         
       socket.on('connect', function() {
-              console.log("Connected");
+         console.log("Connected");
+         socket.emit('requestingJson');
       });
 
-      //function for requesting json - works with html 'get data' button
-      var requestingJson = function() {
-              // console.log("requestingJson button pressed");
-              socket.emit('requestingJson');
+      var requestingJson = function() {   //function for requesting json - works with html 'get data' button
+         socket.emit('requestingJson');
       };
 
-      //receive json data
+      //RECEIVE JSON FROM SERVER
       socket.on('json', function(data){
-         // console.log("json: " + data);
-
          var json = JSON.parse(data);
 
          sunriseUTC = json.sys.sunrise;
+         sunrise = convertUNIX(sunriseUTC);
+         console.log("sunrise: " + sunrise);
 
          sunsetUTC = json.sys.sunset;
-
-         // console.log("sunriseUTC = " + sunriseUTC + " / sunsetUTC = " + sunsetUTC);
-
-         sunrise = convertUTC(sunriseUTC);
-         sunset = convertUTC(sunsetUTC);
-
-         console.log("sunrise: " + sunrise);
+         sunset = convertUNIX(sunsetUTC);
          console.log("sunset: " + sunset);
 
+         daylength = parseInt(sunset) - parseInt(sunrise);
+         console.log("daylength:" + daylength);
 
+         currentTime = getCurrentTime();
+         now = parseInt(currentTime) - parseInt(sunrise);
+         console.log('right now = ' + now);
 
+         // clock();
+         checkDayLight();
 
+         
       });
 
-      
-      //function to convert UNIX timestamp to localtime
-      var convertUTC = function(UTC) {
-         // create a new javascript Date object based on the timestamp
+      var convertUNIX = function(UTC) {
          var date = new Date(UTC*1000);   // multiplied by 1000 so that the argument is in milliseconds to work with javascript
          
-         var hours = date.getHours();  // hours part from the timestamp
-         
-         var minutes = "0" + date.getMinutes(); // minutes part from the timestamp
+         var hours = date.getHours() * 60; 
+         var minutes = "0" + date.getMinutes();
+         var totalMinutes = parseInt(hours) + parseInt(minutes);
 
-         // will display time in 10:30:23 format
-         var formattedTime = hours + ':' + minutes.substr(minutes.length-2);
+         var formattedTime = hours + ':' + minutes.substr(minutes.length-2); // will display time in 10:30 format
 
-         return formattedTime;
-         // console.log(formattedTime);
-
+         return totalMinutes;
       }
+
+      function getCurrentTime() {
+         var date = new Date();
+
+         var hours = date.getHours() * 60; 
+         var minutes = "0" + date.getMinutes();
+         var totalMinutes = parseInt(hours) + parseInt(minutes);
+
+         return totalMinutes;
+      }
+
+      //check to see if it's currently within daylight hours
+      function checkDayLight() {
+         if (currentTime > sunset || currentTime < sunrise) {
+            console.log("IT'S DARK");
+            return;
+         } else {
+            clocl();
+         }
+      }
+
+      // checkDayLight();
+
+      
+
+      //////////CLOCK STUFF
+
+      function clock() {
+         var currentdegree = (360*now)/daylength; //in minutes, 1440 minutes in 24 hours
+
+         // console.log('current degree: ' + currentdegree);
+
+         
+
+            currentdegree = 0;
+            console.log('current degree: ' + currentdegree);
+
+            setInterval(function() {
+               function r(el, degree) {
+                  el.setAttribute('transform', 'rotate('+ degree +' 50 50)')
+               }
+         
+               var date = new Date()
+               r(hand, currentdegree)
+            }, 1000)
+         
+
+      }//end clock function
+      
+
+      /////end clock stuff
 
 
 
@@ -71,11 +121,40 @@
 
 
    <body>
-       <body>
-          
-      <button type="button" onclick="requestingJson();">Get Data</button>
+    
+      <button type="button" onclick="requestingJson();">UPDATE</button>
+
+      <div id="clock-div">
+
+         <svg id="clock" viewBox="0 0 100 100">
+         <circle id="face" cx="50" cy="50" r="45"/>
+            <g id="hands">
+               <line id="hand" x1="50" y1="50" x2="50" y2="4" />
+            </g>
+         </svg>
+
+      </div>
+
+
 
    </body>
 
-
 </html>
+
+
+
+
+<style>
+   #hand { 
+      stroke: #FFFFFF; 
+   }
+
+   #clock-div {
+      width:40%;
+      height: 40%;
+      padding-top:50px;
+      margin-left: auto;
+      margin-right: auto;
+   }
+
+</style>
