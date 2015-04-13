@@ -43,24 +43,26 @@ io.sockets.on('connection',
 
 		socket.on('requestingJson', function() {
 
-			//API REQUEST STUFF - http://api.openweathermap.org/data/2.5/weather?id=5128581&units=imperial
+			//API REQUEST STUFF - 
 			var requestOptions = {
 			        host: 'api.openweathermap.org',
 			        path: '/data/2.5/weather?id=5128581&units=imperial'
 			};
 
 			var requestCallback  = function(response) {
-			        var str = ''; // contains everything back from the server but it will come in chunks
+				// contains everything back from the server, in chunks
+			    var str = ''; 
 
-			        response.on('data', function (chunk) {
-			                str += chunk;
-			        });
+		        response.on('data', function (chunk) {
+		                str += chunk;
+		        });
 
-			        response.on('end', function () {
-			                console.log(str);
-			                
-			                socket.emit('json', str); //send the json string to the client side
-			        });
+		        response.on('end', function () {
+		                console.log(str);
+		                
+		                //send the json string to the client side
+		                socket.emit('json', str); 
+		        });
 			};
 
 		// This is the actual request for the page

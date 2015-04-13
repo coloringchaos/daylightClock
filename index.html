@@ -11,6 +11,8 @@
       var currentTime;
       var now;
       var daylength;
+
+      var currentdegree;
                         
       socket.on('connect', function() {
          console.log("Connected");
@@ -40,9 +42,7 @@
          now = parseInt(currentTime) - parseInt(sunrise);
          console.log('right now = ' + now);
 
-         // clock();
-         checkDayLight();
-
+         checkDayLight(); //this should call clock
          
       });
 
@@ -53,66 +53,59 @@
          var minutes = "0" + date.getMinutes();
          var totalMinutes = parseInt(hours) + parseInt(minutes);
 
-         var formattedTime = hours + ':' + minutes.substr(minutes.length-2); // will display time in 10:30 format
+         var totalSeconds = parseInt(totalMinutes) * 60;
 
-         return totalMinutes;
+         return totalSeconds;
       }
 
       function getCurrentTime() {
          var date = new Date();
-
          var hours = date.getHours() * 60; 
          var minutes = "0" + date.getMinutes();
+         var seconds = date.getSeconds();
          var totalMinutes = parseInt(hours) + parseInt(minutes);
+         
+         var totalSeconds = (parseInt(totalMinutes) * 60) + parseInt(seconds);
 
-         return totalMinutes;
+         return totalSeconds;
       }
 
       //check to see if it's currently within daylight hours
+      //mostly for debugging...can delete later
       function checkDayLight() {
          if (currentTime > sunset || currentTime < sunrise) {
             console.log("IT'S DARK");
             return;
          } else {
-            clocl();
+            console.log("IT'S LIGHT OUT");
          }
       }
 
-      // checkDayLight();
 
-      
-
-      //////////CLOCK STUFF
-
-      function clock() {
-         var currentdegree = (360*now)/daylength; //in minutes, 1440 minutes in 24 hours
-
-         // console.log('current degree: ' + currentdegree);
-
+      setInterval(function() {
+         //update now - this happens above also, maybe move to function to avoid redundancy?
+         currentTime = getCurrentTime();
+         now = parseInt(currentTime) - parseInt(sunrise);
          
+         //update daylight - add this in case browser is open for a long time
 
+         currentdegree = (360*now)/daylength; //in minutes, 1440 minutes in 24 hours
+
+         if (currentdegree > 360){
             currentdegree = 0;
-            console.log('current degree: ' + currentdegree);
+         }
 
-            setInterval(function() {
-               function r(el, degree) {
-                  el.setAttribute('transform', 'rotate('+ degree +' 50 50)')
-               }
+         function rotate(el, degree) {
+            el.setAttribute('transform', 'rotate('+ degree +' 50 50)')
+         }
          
-               var date = new Date()
-               r(hand, currentdegree)
-            }, 1000)
-         
+         rotate(hand, currentdegree);
 
-      }//end clock function
+         console.log('current degree: ' + currentdegree);
+
+      }, 1000)
       
 
-      /////end clock stuff
-
-
-
-
-        
       </script>     
 
    </head>
@@ -150,8 +143,8 @@
    }
 
    #clock-div {
-      width:40%;
-      height: 40%;
+      width:50%;
+      height: 50%;
       padding-top:50px;
       margin-left: auto;
       margin-right: auto;
