@@ -12,6 +12,11 @@
       var now;
       var daylength;
 
+
+      var hours; 
+      var minutes;
+      var seconds;
+
       var currentdegree;
                         
       socket.on('connect', function() {
@@ -43,8 +48,14 @@
          console.log('right now = ' + now);
 
          checkDayLight(); //this should call clock
+
+         // var lightTime = 
          
       });
+
+      function getRemainingDaylight() {
+         
+      }
 
       var convertUNIX = function(UTC) {
          var date = new Date(UTC*1000);   // multiplied by 1000 so that the argument is in milliseconds to work with javascript
@@ -59,13 +70,14 @@
       }
 
       function getCurrentTime() {
-         var date = new Date();
-         var hours = date.getHours() * 60; 
-         var minutes = "0" + date.getMinutes();
-         var seconds = date.getSeconds();
-         var totalMinutes = parseInt(hours) + parseInt(minutes);
+         date = new Date();
+         hours = date.getHours() * 60; 
+         minutes = "0" + date.getMinutes();
+         seconds = date.getSeconds();
+         totalMinutes = parseInt(hours) + parseInt(minutes);
          
          var totalSeconds = (parseInt(totalMinutes) * 60) + parseInt(seconds);
+         // console.log()
 
          return totalSeconds;
       }
@@ -91,7 +103,7 @@
 
          currentdegree = (360*now)/daylength; //in minutes, 1440 minutes in 24 hours
 
-         if (currentdegree > 360){
+         if (currentdegree > 360 || currentdegree < 0){
             currentdegree = 0;
          }
 
@@ -102,6 +114,12 @@
          rotate(hand, currentdegree);
 
          console.log('current degree: ' + currentdegree);
+
+         //print the stuff to the screen
+         document.getElementById('degree').innerHTML = "current degree: " + currentdegree.toFixed(1);
+         document.getElementById('daylength').innerHTML = "hours of daylight " +(daylength/3600).toFixed(2);
+         document.getElementById('time').innerHTML = date;
+
 
       }, 1000)
       
@@ -114,21 +132,41 @@
 
 
    <body>
-    
-      <button type="button" onclick="requestingJson();">UPDATE</button>
+      <div id="container">
+
+         <div>
+            This is a daylight clock. 
+            <br>It rotates 360 degrees over the course of daylight hours.
+            <br>
+            <br>
+         </div>
+         <div id="time"></div>
+         <br>
+         <div id="daylength"></div>
+         <br>
+         <div id="degree"></div>
+
+      </div> 
+
+      <br>
+      <!-- <button type="button" onclick="requestingJson();">UPDATE</button> -->
 
       <div id="clock-div">
 
          <svg id="clock" viewBox="0 0 100 100">
          <circle id="face" cx="50" cy="50" r="45"/>
             <g id="hands">
-               <line id="hand" x1="50" y1="50" x2="50" y2="4" />
+               <line id="hand" x1="50" y1="50" x2="50" y2="4" style="stroke:rgb(255,0,0) stroke-width:2" />
             </g>
          </svg>
 
       </div>
 
-
+      <div id="info">
+         <div>
+            This is a project by Arielle Hein as part of her thesis.  To learn more / share feedback / talk about the sun, email <a href="mailto:ariellehein@gmail.com?Subject=Clock" target="_top">ariellehein@gmail.com</a> or find me on the floor!
+         </div>
+      </div>
 
    </body>
 
@@ -138,16 +176,32 @@
 
 
 <style>
+
+   body {
+      font-family: monospace;
+   }
+
+   #container{
+      position:fixed;
+      z-index:50;
+   }
+
    #hand { 
       stroke: #FFFFFF; 
    }
 
    #clock-div {
-      width:50%;
-      height: 50%;
-      padding-top:50px;
+      position:relative;
+      width:45%;
+      margin-top:100px;
       margin-left: auto;
       margin-right: auto;
+   }
+
+   #info {
+      position:fixed;
+      bottom:10px;
+      margin-right:0px;
    }
 
 </style>
